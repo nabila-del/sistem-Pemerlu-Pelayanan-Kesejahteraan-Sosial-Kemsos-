@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Admin - SIP-PPKS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        // Proteksi Akses: Jika belum login, paksa ke login.html
+        if (!localStorage.getItem('loggedInUser')) {
+            window.location.replace('login.html');
+        }
+    </script>
+</head>
+<body class="bg-slate-50 font-sans flex h-screen overflow-hidden transition-colors duration-300">
+
+    <aside class="w-64 bg-white text-slate-800 flex flex-col justify-between p-4 border-r border-slate-200 shrink-0 print:hidden transition-colors duration-300">
+        <div>
+            <div class="flex items-center gap-3 mb-8 px-2">
+                <i data-lucide="users" class="w-7 h-7 text-teal-600"></i>
+                <span class="text-lg font-bold tracking-wide">SIP-PPKS</span>
+            </div>
+            
+            <nav class="space-y-1">
+                <a href="dashboard.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium text-sm transition-all duration-200 hover:translate-x-1">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="ppks.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium text-sm transition-all duration-200 hover:translate-x-1">
+                    <i data-lucide="user-check" class="w-4 h-4"></i>
+                    <span>Data PPKS</span>
+                </a>
+                <a href="jenis-ppks.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium text-sm transition-all duration-200 hover:translate-x-1">
+                    <i data-lucide="tags" class="w-4 h-4"></i>
+                    <span>Jenis PPKS</span>
+                </a>
+                <a href="laporan.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium text-sm transition-all duration-200 hover:translate-x-1">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                    <span>Laporan</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="space-y-3">
+            <div class="border-t border-slate-200 pt-4 flex items-center justify-between px-2">
+                <a href="profile.html" class="flex items-center gap-2 text-teal-600 font-semibold text-sm transition-colors duration-200">
+                    <i data-lucide="user-circle" class="w-5 h-5"></i>
+                    <span>Profil Admin</span>
+                </a>
+                
+                <button type="button" id="btnLogout" class="text-slate-400 hover:text-rose-500 transition-colors duration-200 p-1.5 rounded-lg hover:bg-rose-500/10 cursor-pointer" title="Keluar / Logout">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto p-8 transition-all duration-300">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm mb-6 transition-all duration-300 relative overflow-hidden">
+            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
+                <div class="relative group cursor-pointer shrink-0">
+                    <div class="w-24 h-24 rounded-2xl bg-teal-600 text-white flex items-center justify-center font-bold text-3xl shadow-lg shadow-teal-600/30 overflow-hidden ring-4 ring-slate-100">
+                        <span id="avatarInitials">AD</span>
+                    </div>
+                </div>
+
+                <div class="text-center sm:text-left flex-1">
+                    <div class="mb-1">
+                        <h1 class="text-2xl font-bold text-slate-800" id="headerName">Admin Dinsos</h1>
+                    </div>
+                    <p class="text-sm text-slate-500 mb-3">Dinas Sosial Kabupaten Garut • NIP. 19880312 201101 1 002</p>
+
+                    <div class="flex flex-wrap justify-center sm:justify-start gap-4 text-xs text-slate-500 pt-2 border-t border-slate-100">
+                        <span class="flex items-center gap-1.5">
+                            <i data-lucide="mail" class="w-3.5 h-3.5 text-teal-600"></i> admin.dinsos@garutkab.go.id
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i> Akun Terverifikasi
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <i data-lucide="clock" class="w-3.5 h-3.5 text-cyan-500"></i> Login Terakhir: Hari ini, 08:30 WIB
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="space-y-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="activity" class="w-4 h-4 text-teal-600"></i> Ringkasan Sesi
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-teal-500/10 text-teal-600 rounded-lg">
+                                    <i data-lucide="laptop" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-700">Perangkat Ini</p>
+                                    <p class="text-[11px] text-slate-400">Chrome di Windows 11</p>
+                                </div>
+                            </div>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6">
+                <form id="profileForm" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1.5">Nama Lengkap</label>
+                            <input type="text" id="adminName" required class="w-full border border-slate-300 bg-slate-50 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-teal-500 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1.5">Username</label>
+                            <input type="text" value="admin_ppks" disabled class="w-full border border-slate-200 bg-slate-100 text-slate-400 rounded-xl p-2.5 text-sm cursor-not-allowed">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1.5">Alamat Email</label>
+                            <input type="email" value="admin.dinsos@garutkab.go.id" class="w-full border border-slate-300 bg-slate-50 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-teal-500 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1.5">Nomor WhatsApp / Telepon</label>
+                            <input type="text" value="081234567890" class="w-full border border-slate-300 bg-slate-50 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-teal-500 transition-all">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
+                        <button type="submit" class="bg-teal-600 hover:bg-teal-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all active:scale-95 shadow-md shadow-teal-900/20">
+                            <i data-lucide="check" class="w-4 h-4"></i> Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.lucide) lucide.createIcons();
+
+            // Memuat nama pengguna dari localStorage
+            const savedUser = localStorage.getItem('loggedInUser');
+            if (savedUser) {
+                document.getElementById('headerName').textContent = savedUser;
+                document.getElementById('adminName').value = savedUser;
+                
+                const initials = savedUser.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                document.getElementById('avatarInitials').textContent = initials;
+            }
+
+            // Event Listener khusus untuk Tombol Logout
+            const btnLogout = document.getElementById('btnLogout');
+            if (btnLogout) {
+                btnLogout.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const confirmLogout = window.confirm("Apakah Anda yakin ingin keluar dari aplikasi SIP-PPKS?");
+                    if (confirmLogout) {
+                        // Hapus semua data sesi
+                        localStorage.removeItem('loggedInUser');
+                        localStorage.removeItem('adminSession');
+                        
+                        // Arahkan ke login.html
+                        window.location.replace('login.html');
+                    }
+                });
+            }
+        });
+
+        // Simpan Form Profil
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newName = document.getElementById('adminName').value;
+            document.getElementById('headerName').textContent = newName;
+            localStorage.setItem('loggedInUser', newName);
+
+            const initials = newName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            document.getElementById('avatarInitials').textContent = initials;
+            
+            alert('Informasi profil berhasil diperbarui!');
+        });
+    </script>
+</body>
+</html>

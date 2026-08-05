@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Laporan Warga - SIP-PPKS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-100 min-h-screen font-sans p-4">
+
+    <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl border border-slate-200 p-6 mt-6">
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+            <div>
+                <h1 class="text-lg font-bold text-slate-800">Form Laporan PPKS</h1>
+                <p id="userGreeting" class="text-xs text-teal-600 font-medium">Selamat Datang, Warga</p>
+            </div>
+            <button id="btnLogout" class="p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition-all text-xs flex items-center gap-1 font-semibold">
+                <i data-lucide="log-out" class="w-4 h-4"></i> Keluar
+            </button>
+        </div>
+
+        <div id="alertBox" class="hidden mb-4 p-3 text-xs rounded-lg text-center font-medium"></div>
+
+        <form id="laporForm" class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Penyandang Masalah (PPKS)</label>
+                <input type="text" id="namaPpks" required placeholder="Nama warga yang dibantu..."
+                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Jenis PPKS</label>
+                <select id="jenisPpks" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 text-sm">
+                    <option value="">-- Pilih Jenis PPKS --</option>
+                    <option value="Lansia Terlantar">Lansia Terlantar</option>
+                    <option value="Penyandang Disabilitas">Penyandang Disabilitas</option>
+                    <option value="Anak Terlantar">Anak Terlantar</option>
+                    <option value="Fakir Miskin">Fakir Miskin</option>
+                    <option value="Pengemis">Pengemis</option>
+                    <option value="Gelandangan">Gelandangan</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Alamat / Lokasi Detail</label>
+                <textarea id="alamatPpks" rows="3" required placeholder="RT/RW, Kampung, Desa..."
+                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 text-sm"></textarea>
+            </div>
+
+            <button type="submit" id="btnSubmit" class="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg text-sm shadow-md transition-all flex items-center justify-center gap-2">
+                <span>Kirim Laporan</span>
+            </button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase.js"></script>
+    <script>
+        if (window.lucide) lucide.createIcons();
+
+        // 1. Cek Sesi Login Warga
+        const userData = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
+        if (!userData || userData.role !== 'warga') {
+            window.location.href = 'login.html';
+        } else {
+            document.getElementById('userGreeting').textContent = `Halo, ${userData.nama || 'Warga'}`;
+        }
+
+        // 2. Tombol Logout
+        document.getElementById('btnLogout').addEventListener('click', () => {
+            localStorage.removeItem('loggedInUser');
+            window.location.href = 'login.html';
+        });
+
+        // 3. Simpan Laporan ke Tabel data_ppks
+        document.getElementById('laporForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const inputNama = document.getElementById('namaPpks').value.trim();
+            const inputJenis = document.getElementById('jenisPpks').value;
+            const inputAlamat = document.getElementById('alamatPpks').value.trim();
+            const alertBox = document.getElementById('alertBox');
+            const btn = document.getElementById('btnSubmit');
+
+            btn.disabled = true;
+            btn.innerHTML = `<span>Mengirim...</span>`;
+
+            try {
+                const client = window.supabaseClient;
+
+                // Disesuaikan dengan struktur kolom di tabel Supabase: 'nama', 'jenis_ppks', 'nik'
+                const { error } = await client.from('data_ppks').insert([{
+                    nama: inputNama,
+                    jenis_ppks: inputJenis,
+                    nik: userData.nik || ''
+                }]);
+
+                if (error) throw error;
+
+                alertBox.textContent = 'Laporan Anda berhasil dikirim!';
+                alertBox.className = 'mb-4 p-3 text-xs rounded-lg text-center font-medium bg-emerald-50 border border-emerald-200 text-emerald-600 block';
+                document.getElementById('laporForm').reset();
+
+            } catch (err) {
+                alertBox.textContent = 'Gagal mengirim: ' + err.message;
+                alertBox.className = 'mb-4 p-3 text-xs rounded-lg text-center font-medium bg-rose-50 border border-rose-200 text-rose-600 block';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<span>Kirim Laporan</span>`;
+            }
+        });
+    </script>
+</body>
+</html>

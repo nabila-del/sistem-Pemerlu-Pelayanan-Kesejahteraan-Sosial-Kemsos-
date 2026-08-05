@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Akun Warga - SIP-PPKS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen font-sans p-4">
+
+    <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
+        <div class="text-center mb-6">
+            <div class="inline-flex p-3 bg-teal-100 text-teal-600 rounded-xl mb-3">
+                <i data-lucide="user-plus" class="w-8 h-8"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800">Daftar Akun Warga</h2>
+            <p class="text-xs text-slate-500 mt-1">Buat akun untuk melaporkan data PPKS secara mandiri</p>
+        </div>
+
+        <div id="alertBox" class="hidden mb-4 p-3 text-xs rounded-lg text-center font-medium"></div>
+
+        <form id="registerForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">NIK (Sesuai KTP)</label>
+                <input type="text" id="regNik" required maxlength="16" placeholder="Masukkan 16 digit NIK..."
+                    class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap</label>
+                <input type="text" id="regNama" required placeholder="Masukkan nama lengkap..."
+                    class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Nomor WhatsApp / HP</label>
+                <input type="tel" id="regHp" required placeholder="08xxxxxxxxxx"
+                    class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                <input type="password" id="regPassword" required placeholder="••••••••"
+                    class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+            </div>
+
+            <button type="submit" id="btnRegister" class="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg text-sm shadow-lg shadow-teal-600/30 transition-all duration-200 flex items-center justify-center gap-2">
+                <span>Daftar Akun</span>
+            </button>
+        </form>
+
+        <p class="text-center text-xs text-slate-500 mt-6">
+            Sudah punya akun? <a href="login.html" class="text-teal-600 font-bold hover:underline">Login di sini</a>
+        </p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase.js"></script>
+
+    <script>
+        if (window.lucide) lucide.createIcons();
+
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const nik = document.getElementById('regNik').value.trim();
+            const nama = document.getElementById('regNama').value.trim();
+            const hp = document.getElementById('regHp').value.trim();
+            const pass = document.getElementById('regPassword').value.trim();
+            const alertBox = document.getElementById('alertBox');
+            const btn = document.getElementById('btnRegister');
+
+            // Reset Alert Box & Tombol
+            alertBox.className = 'hidden mb-4 p-3 text-xs rounded-lg text-center font-medium';
+            btn.disabled = true;
+            btn.innerHTML = `<span>Mendaftarkan...</span>`;
+
+            try {
+                const client = window.supabaseClient || (typeof supabaseClient !== 'undefined' ? supabaseClient : null);
+
+                if (!client) {
+                    throw new Error('Koneksi Supabase belum terhubung! Cek file assets/js/supabase.js');
+                }
+
+                // 1. Cek NIK ganda di tabel users_warga
+                const { data: existingUser, error: checkErr } = await client
+                    .from('users_warga')
+                    .select('nik')
+                    .eq('nik', nik)
+                    .maybeSingle();
+
+                if (checkErr) throw checkErr;
+
+                if (existingUser) {
+                    alertBox.textContent = 'NIK ini sudah terdaftar! Silakan langsung login.';
+                    alertBox.classList.add('bg-rose-50', 'border', 'border-rose-200', 'text-rose-600');
+                    alertBox.classList.remove('hidden');
+                    return;
+                }
+
+                // 2. Insert data baru ke tabel users_warga
+                const { error: insertErr } = await client
+                    .from('users_warga')
+                    .insert([{
+                        nik: nik,
+                        nama_lengkap: nama,
+                        no_hp: hp,
+                        password: pass
+                    }]);
+
+                if (insertErr) throw insertErr;
+
+                // 3. Notifikasi Berhasil & Redirect
+                alertBox.textContent = 'Pendaftaran berhasil! Mengalihkan ke halaman login...';
+                alertBox.classList.add('bg-emerald-50', 'border', 'border-emerald-200', 'text-emerald-600');
+                alertBox.classList.remove('hidden');
+
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+
+            } catch (err) {
+                alertBox.textContent = 'Gagal mendaftar: ' + err.message;
+                alertBox.classList.add('bg-rose-50', 'border', 'border-rose-200', 'text-rose-600');
+                alertBox.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<span>Daftar Akun</span>`;
+            }
+        });
+    </script>
+</body>
+</html>

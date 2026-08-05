@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>SIP-PPKS</title>
+    <script>
+        // Cek apakah admin sudah login sebelumnya
+        const loggedInUser = localStorage.getItem('loggedInUser') || localStorage.getItem('adminSession');
+
+        if (loggedInUser) {
+            // Jika sudah login, langsung lempar ke Dashboard
+            window.location.replace('dashboard.html');
+        } else {
+            // Jika belum login, langsung paksakan ke halaman Login
+            window.location.replace('login.html');
+        }
+    </script>
+</head>
+<body>
+</body>
+</html>

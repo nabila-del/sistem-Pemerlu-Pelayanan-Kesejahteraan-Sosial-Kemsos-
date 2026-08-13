@@ -3,77 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Laporan Warga - SIP-PPKS</title>
+    <title>Form Laporan / Tambah Data - SIP-PPKS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @keyframes fadeInSlide {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in {
+            animation: fadeInSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
 </head>
-<body class="bg-slate-100 min-h-screen font-sans p-4">
+<body class="bg-slate-100 min-h-screen flex flex-col font-sans text-slate-800 antialiased selection:bg-emerald-600 selection:text-white">
 
-    <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl border border-slate-200 p-6 mt-6">
-        <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
-            <div>
-                <h1 class="text-lg font-bold text-slate-800">Form Laporan PPKS</h1>
-                <p id="userGreeting" class="text-xs text-teal-600 font-medium">Selamat Datang, Warga</p>
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 transition-all shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold shadow-sm">
+                    <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight tracking-tight">SIP-PPKS</h1>
+                    <p class="text-[11px] text-emerald-600 font-semibold tracking-wide">FORMULIR INPUT & PELAPORAN</p>
+                </div>
             </div>
-            <button id="btnLogout" class="p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition-all text-xs flex items-center gap-1 font-semibold">
-                <i data-lucide="log-out" class="w-4 h-4"></i> Keluar
-            </button>
+
+            <div class="flex items-center gap-4">
+                <div class="hidden sm:flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span id="userGreeting" class="text-xs text-emerald-900 font-semibold">Halo, Pengguna</span>
+                </div>
+                <button id="btnLogout" class="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition-all duration-200 text-xs font-semibold flex items-center gap-1.5 border border-rose-200 active:scale-95 cursor-pointer shadow-xs">
+                    <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                    <span>Keluar</span>
+                </button>
+            </div>
         </div>
+    </header>
 
-        <div id="alertBox" class="hidden mb-4 p-3 text-xs rounded-lg text-center font-medium"></div>
-
-        <form id="laporForm" class="space-y-4">
-            <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Penyandang Masalah (PPKS)</label>
-                <input type="text" id="namaPpks" required placeholder="Nama warga yang dibantu..."
-                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 text-sm">
+    <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-10 animate-fade-in">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden transition-all duration-300">
+            
+            <div class="bg-emerald-700 px-6 sm:px-10 py-8 text-white relative overflow-hidden">
+                <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 text-emerald-100 text-[11px] font-semibold tracking-wide mb-3 border border-white/10">
+                            <i data-lucide="file-edit" class="w-3.5 h-3.5"></i> Form Input & Pengaduan Resmi
+                        </span>
+                        <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-white">Kelola Data Kasus PPKS</h2>
+                        <p class="text-xs sm:text-sm text-emerald-100 mt-1 max-w-xl leading-relaxed">
+                            Input atau laporkan kondisi penyandang masalah kesejahteraan sosial secara akurat untuk segera ditindaklanjuti.
+                        </p>
+                    </div>
+                </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Jenis PPKS</label>
-                <select id="jenisPpks" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 text-sm">
-                    <option value="">-- Pilih Jenis PPKS --</option>
-                    <option value="Lansia Terlantar">Lansia Terlantar</option>
-                    <option value="Penyandang Disabilitas">Penyandang Disabilitas</option>
-                    <option value="Anak Terlantar">Anak Terlantar</option>
-                    <option value="Fakir Miskin">Fakir Miskin</option>
-                    <option value="Pengemis">Pengemis</option>
-                    <option value="Gelandangan">Gelandangan</option>
-                </select>
-            </div>
+            <div class="p-6 sm:p-10">
+                
+                <div id="roleNotificationBanner" class="mb-6 p-4 rounded-xl text-xs sm:text-sm font-medium border flex items-center gap-3 transition-all hidden">
+                    <i data-lucide="info" class="w-5 h-5 shrink-0"></i>
+                    <div id="roleNotificationText">Memuat informasi akses...</div>
+                </div>
 
-            <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Alamat / Lokasi Detail</label>
-                <textarea id="alamatPpks" rows="3" required placeholder="RT/RW, Kampung, Desa..."
-                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 text-sm"></textarea>
-            </div>
+                <div id="alertBox" class="hidden mb-6 p-4 text-xs sm:text-sm rounded-xl text-center font-medium transition-all duration-300"></div>
 
-            <button type="submit" id="btnSubmit" class="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg text-sm shadow-md transition-all flex items-center justify-center gap-2">
-                <span>Kirim Laporan</span>
-            </button>
-        </form>
-    </div>
+                <form id="laporForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs sm:text-sm font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+                                <i data-lucide="user-search" class="w-4 h-4 text-emerald-600"></i> Nama Penyandang Masalah (PPKS)
+                            </label>
+                            <div class="relative group">
+                                <input type="text" id="namaPpks" required placeholder="Contoh: Budi Santoso"
+                                    class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-600/10 focus:border-emerald-600 text-xs sm:text-sm text-slate-800 transition-all duration-200 outline-none">
+                                <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-4 top-4 transition-colors group-focus-within:text-emerald-600"></i>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs sm:text-sm font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+                                <i data-lucide="tags" class="w-4 h-4 text-emerald-600"></i> Kategori / Jenis PPKS
+                            </label>
+                            <div class="relative group">
+                                <select id="jenisPpks" required class="w-full pl-11 pr-10 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-600/10 focus:border-emerald-600 text-xs sm:text-sm text-slate-800 transition-all duration-200 outline-none appearance-none cursor-pointer">
+                                    <option value="">-- Pilih Jenis PPKS --</option>
+                                    <option value="Anak Balita Terlantar">Anak Balita Terlantar</option>
+                                    <option value="Anak Terlantar">Anak Terlantar</option>
+                                    <option value="Anak Jalanan">Anak Jalanan</option>
+                                    <option value="Lanjut Usia Terlantar">Lanjut Usia Terlantar</option>
+                                    <option value="Penyandang Disabilitas">Penyandang Disabilitas</option>
+                                    <option value="Gelandangan">Gelandangan</option>
+                                    <option value="Pengemis">Pengemis</option>
+                                    <option value="Pemulung">Pemulung</option>
+                                    <option value="Korban Tindak Kekerasan">Korban Tindak Kekerasan</option>
+                                    <option value="Fakir Miskin">Fakir Miskin</option>
+                                </select>
+                                <i data-lucide="layers" class="w-4 h-4 text-slate-400 absolute left-4 top-4 transition-colors group-focus-within:text-emerald-600"></i>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 absolute right-4 top-4 pointer-events-none"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs sm:text-sm font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+                            <i data-lucide="map-pinned" class="w-4 h-4 text-emerald-600"></i> Alamat / Lokasi Detail Kejadian
+                        </label>
+                        <div class="relative group">
+                            <textarea id="alamatPpks" rows="4" required placeholder="Tuliskan nama jalan, RT/RW, Kampung, Desa, atau patokan lokasi..."
+                                class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-600/10 focus:border-emerald-600 text-xs sm:text-sm text-slate-800 transition-all duration-200 outline-none resize-none"></textarea>
+                            <i data-lucide="map-pin" class="w-4 h-4 text-slate-400 absolute left-4 top-4 transition-colors group-focus-within:text-emerald-600"></i>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex flex-col sm:flex-row items-center justify-end gap-3 border-t border-slate-100">
+                        <button type="submit" id="btnSubmit" class="w-full sm:w-auto px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-md active:scale-95 transition-all duration-200 flex items-center justify-center gap-2.5 cursor-pointer">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                            <span id="btnText">Simpan Data PPKS</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-auto">
+        &copy; 2026 SIP-PPKS. All rights reserved.
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../assets/js/supabase.js"></script>
+    
     <script>
         if (window.lucide) lucide.createIcons();
 
-        // 1. Cek Sesi Login Warga
+        // 1. Cek Sesi Login & Munculkan Pemberitahuan Status Berdasarkan Akun
         const userData = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
-        if (!userData || userData.role !== 'warga') {
+        if (!userData || !userData.role) {
             window.location.href = 'login.html';
         } else {
-            document.getElementById('userGreeting').textContent = `Halo, ${userData.nama || 'Warga'}`;
+            document.getElementById('userGreeting').textContent = `Halo, ${userData.nama || userData.username || 'Pengguna'}`;
+            
+            // Konfigurasi Banner Pemberitahuan Berdasarkan Role
+            const banner = document.getElementById('roleNotificationBanner');
+            const bannerText = document.getElementById('roleNotificationText');
+            banner.classList.remove('hidden');
+
+            if (userData.role === 'admin' || userData.role === 'petugas') {
+                banner.className = 'mb-6 p-4 rounded-xl text-xs sm:text-sm font-medium border bg-sky-50 border-sky-200 text-sky-800 flex items-center gap-3 animate-fade-in';
+                bannerText.innerHTML = `<strong>Pemberitahuan Admin/Petugas:</strong> Anda masuk melalui akun <em>Administrator/Petugas</em>. Data yang Anda input akan langsung tercatat di tabel utama dengan status <strong>Tervalidasi</strong>.`;
+            } else {
+                banner.className = 'mb-6 p-4 rounded-xl text-xs sm:text-sm font-medium border bg-amber-50 border-amber-200 text-amber-800 flex items-center gap-3 animate-fade-in';
+                bannerText.innerHTML = `<strong>Pemberitahuan Akun Warga:</strong> Anda masuk sebagai pelapor mandiri (*Warga*). Data yang diinput akan masuk sebagai pengaduan dengan status <strong>Pending / Proses</strong> untuk diverifikasi admin.`;
+            }
         }
 
-        // 2. Tombol Logout
+        // 2. Logout
         document.getElementById('btnLogout').addEventListener('click', () => {
             localStorage.removeItem('loggedInUser');
             window.location.href = 'login.html';
         });
 
-        // 3. Simpan Laporan ke Tabel data_ppks
+        // 3. Simpan Form ke Tabel `data_ppks`
         document.getElementById('laporForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -82,32 +180,41 @@
             const inputAlamat = document.getElementById('alamatPpks').value.trim();
             const alertBox = document.getElementById('alertBox');
             const btn = document.getElementById('btnSubmit');
+            const btnText = document.getElementById('btnText');
 
             btn.disabled = true;
-            btn.innerHTML = `<span>Mengirim...</span>`;
+            btnText.textContent = 'Menyimpan Data...';
 
             try {
-                const client = window.supabaseClient;
+                const client = window.supabaseClient || (typeof supabaseClient !== 'undefined' ? supabaseClient : null);
 
-                // Disesuaikan dengan struktur kolom di tabel Supabase: 'nama', 'jenis_ppks', 'nik'
+                if (!client) {
+                    throw new Error('Koneksi Supabase belum siap!');
+                }
+
                 const { error } = await client.from('data_ppks').insert([{
                     nama: inputNama,
                     jenis_ppks: inputJenis,
-                    nik: userData.nik || ''
+                    alamat: inputAlamat,
+                    nik: userData.nik || '-',
+                    status: (userData.role === 'admin' || userData.role === 'petugas') ? 'Tervalidasi' : 'Pending',
+                    reported_by: userData.nama || userData.username || 'Pengguna',
+                    created_at: new Date().toISOString()
                 }]);
 
                 if (error) throw error;
 
-                alertBox.textContent = 'Laporan Anda berhasil dikirim!';
-                alertBox.className = 'mb-4 p-3 text-xs rounded-lg text-center font-medium bg-emerald-50 border border-emerald-200 text-emerald-600 block';
+                alertBox.textContent = 'Data PPKS berhasil disimpan ke database!';
+                alertBox.className = 'mb-6 p-4 text-xs sm:text-sm rounded-xl text-center font-medium bg-emerald-50 border border-emerald-200 text-emerald-700 block animate-fade-in shadow-xs';
+                
                 document.getElementById('laporForm').reset();
 
             } catch (err) {
-                alertBox.textContent = 'Gagal mengirim: ' + err.message;
-                alertBox.className = 'mb-4 p-3 text-xs rounded-lg text-center font-medium bg-rose-50 border border-rose-200 text-rose-600 block';
+                alertBox.textContent = 'Gagal menyimpan: ' + err.message;
+                alertBox.className = 'mb-6 p-4 text-xs sm:text-sm rounded-xl text-center font-medium bg-rose-50 border border-rose-200 text-rose-700 block animate-fade-in shadow-xs';
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = `<span>Kirim Laporan</span>`;
+                btnText.textContent = 'Simpan Data PPKS';
             }
         });
     </script>

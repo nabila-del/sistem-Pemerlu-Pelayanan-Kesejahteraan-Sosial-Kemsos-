@@ -7,52 +7,180 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-100 flex items-center justify-center min-h-screen font-sans p-4">
+<body class="bg-slate-900 font-sans min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 antialiased">
 
-    <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
-        <div class="text-center mb-6">
-            <div class="inline-flex p-3 bg-teal-100 text-teal-600 rounded-xl mb-3">
-                <i data-lucide="user-plus" class="w-8 h-8"></i>
+    <div class="w-full max-w-5xl bg-slate-800/90 border border-slate-700/80 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[620px] relative z-10 transition-all duration-300">
+        
+        <div class="lg:col-span-5 bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900 p-8 lg:p-12 text-white flex flex-col justify-between relative overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-700/50">
+            
+            <div class="relative z-10">
+                <div class="flex items-center gap-3.5 mb-8">
+                    <div class="relative">
+                        <div class="absolute -inset-1 rounded-2xl bg-teal-400 blur-sm opacity-50 animate-pulse"></div>
+                        <div class="relative p-3 bg-slate-900/80 backdrop-blur-md rounded-2xl border border-teal-500/30 shadow-md">
+                            <i data-lucide="user-plus" class="w-7 h-7 text-teal-300"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-xl font-black tracking-widest uppercase text-white block leading-none">SIP-PPKS</span>
+                        <span class="text-[10px] text-teal-200/80 font-medium tracking-wider uppercase">Pendaftaran Akun Warga</span>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-950/80 border border-teal-400/30 text-teal-300 text-xs font-semibold shadow-lg shadow-teal-900/40">
+                        <span class="relative flex h-2.5 w-2.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
+                        </span>
+                        Akses Layanan Publik Active
+                    </span>
+
+                    <h1 class="text-2xl lg:text-3xl font-extrabold tracking-tight leading-tight text-white">
+                        Bergabung & Laporkan Masalah Sosial di Sekitar Anda.
+                    </h1>
+                    <p class="text-slate-300/80 text-sm leading-relaxed">
+                        Buat akun warga untuk mempermudah pengiriman laporan aduan PPKS secara cepat, akurat, dan dapat dipantau statusnya.
+                    </p>
+                </div>
             </div>
-            <h2 class="text-2xl font-bold text-slate-800">Daftar Akun Warga</h2>
-            <p class="text-xs text-slate-500 mt-1">Buat akun untuk melaporkan data PPKS secara mandiri</p>
+
+            <div class="relative z-10 my-6 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-1.5">
+                <div class="flex items-center gap-2 text-xs font-semibold text-teal-300">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-teal-300"></span>
+                    </span>
+                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+                    <span>Kerahasiaan Data Terjamin</span>
+                </div>
+                <p class="text-[11px] text-slate-300/70 leading-normal">
+                    NIK dan data pribadi Anda dienkripsi serta hanya digunakan untuk verifikasi validitas laporan oleh dinas terkait.
+                </p>
+            </div>
+
+            <div class="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+                <span>Dinsos &copy; 2026</span>
+            </div>
         </div>
 
-        <div id="alertBox" class="hidden mb-4 p-3 text-xs rounded-lg text-center font-medium"></div>
+        <div class="lg:col-span-7 bg-slate-900/90 p-8 lg:p-12 flex flex-col justify-center relative">
+            
+            <div class="max-w-md mx-auto w-full">
+                
+                <div class="mb-6">
+                    <h2 class="text-2xl lg:text-3xl font-bold text-white tracking-tight">Daftar Akun Warga</h2>
+                    <p class="text-sm text-slate-400 mt-1">Lengkapi data diri Anda di bawah ini untuk membuat akun baru.</p>
+                </div>
 
-        <form id="registerForm" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">NIK (Sesuai KTP)</label>
-                <input type="text" id="regNik" required maxlength="16" placeholder="Masukkan 16 digit NIK..."
-                    class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
+                <div id="alertBox" class="hidden mb-4 p-3.5 rounded-2xl text-xs font-medium flex items-center gap-3"></div>
+
+                <form id="registerForm" class="space-y-4">
+                    
+                    <div class="space-y-1">
+                        <label for="regNik" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+                            NIK (Sesuai KTP)
+                        </label>
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-teal-400 transition-colors">
+                                <i data-lucide="id-card" class="w-4 h-4"></i>
+                            </div>
+                            <input 
+                                type="text" 
+                                id="regNik" 
+                                required 
+                                maxlength="16"
+                                placeholder="Masukkan 16 digit NIK..."
+                                class="w-full pl-11 pr-4 py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all duration-200"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label for="regNama" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+                            Nama Lengkap
+                        </label>
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-teal-400 transition-colors">
+                                <i data-lucide="user" class="w-4 h-4"></i>
+                            </div>
+                            <input 
+                                type="text" 
+                                id="regNama" 
+                                required 
+                                placeholder="Masukkan nama sesuai KTP..."
+                                class="w-full pl-11 pr-4 py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all duration-200"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label for="regHp" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+                            Nomor WhatsApp / HP
+                        </label>
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-teal-400 transition-colors">
+                                <i data-lucide="phone" class="w-4 h-4"></i>
+                            </div>
+                            <input 
+                                type="tel" 
+                                id="regHp" 
+                                required
+                                placeholder="08xxxxxxxxxx"
+                                class="w-full pl-11 pr-4 py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all duration-200"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label for="regPassword" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+                            Kata Sandi
+                        </label>
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-teal-400 transition-colors">
+                                <i data-lucide="lock" class="w-4 h-4"></i>
+                            </div>
+                            <input 
+                                type="password" 
+                                id="regPassword" 
+                                required 
+                                placeholder="••••••••"
+                                class="w-full pl-11 pr-12 py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all duration-200"
+                            >
+                            <button 
+                                type="button" 
+                                onclick="toggleRegPassword()" 
+                                class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-slate-300 focus:outline-none cursor-pointer transition-colors"
+                                title="Lihat Sandi"
+                            >
+                                <i id="regEyeIcon" data-lucide="eye" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        id="btnRegister" 
+                        class="w-full py-3.5 px-6 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl text-sm shadow-lg shadow-teal-600/20 transition-all duration-200 active:scale-[0.99] flex items-center justify-center gap-2 group cursor-pointer mt-3"
+                    >
+                        <span>Daftar Akun Sekarang</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200"></i>
+                    </button>
+                </form>
+
+                <div class="mt-6 pt-4 border-t border-slate-800 text-center">
+                    <p class="text-xs text-slate-400">
+                        Sudah memiliki akun warga? 
+                        <a href="login.html" class="text-teal-400 font-semibold hover:text-teal-300 hover:underline transition-colors ml-1">
+                            Masuk di Sini
+                        </a>
+                    </p>
+                </div>
+
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap</label>
-                <input type="text" id="regNama" required placeholder="Masukkan nama lengkap..."
-                    class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
-            </div>
+        </div>
 
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Nomor WhatsApp / HP</label>
-                <input type="tel" id="regHp" required placeholder="08xxxxxxxxxx"
-                    class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
-                <input type="password" id="regPassword" required placeholder="••••••••"
-                    class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm">
-            </div>
-
-            <button type="submit" id="btnRegister" class="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg text-sm shadow-lg shadow-teal-600/30 transition-all duration-200 flex items-center justify-center gap-2">
-                <span>Daftar Akun</span>
-            </button>
-        </form>
-
-        <p class="text-center text-xs text-slate-500 mt-6">
-            Sudah punya akun? <a href="login.html" class="text-teal-600 font-bold hover:underline">Login di sini</a>
-        </p>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -60,6 +188,20 @@
 
     <script>
         if (window.lucide) lucide.createIcons();
+
+        function toggleRegPassword() {
+            const passwordInput = document.getElementById('regPassword');
+            const eyeIcon = document.getElementById('regEyeIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
 
         document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -72,7 +214,7 @@
             const btn = document.getElementById('btnRegister');
 
             // Reset Alert Box & Tombol
-            alertBox.className = 'hidden mb-4 p-3 text-xs rounded-lg text-center font-medium';
+            alertBox.className = 'hidden mb-4 p-3.5 rounded-2xl text-xs font-medium flex items-center gap-3';
             btn.disabled = true;
             btn.innerHTML = `<span>Mendaftarkan...</span>`;
 
@@ -93,9 +235,10 @@
                 if (checkErr) throw checkErr;
 
                 if (existingUser) {
-                    alertBox.textContent = 'NIK ini sudah terdaftar! Silakan langsung login.';
-                    alertBox.classList.add('bg-rose-50', 'border', 'border-rose-200', 'text-rose-600');
+                    alertBox.innerHTML = `<i data-lucide="alert-triangle" class="w-4 h-4 shrink-0 text-rose-400"></i><span>NIK ini sudah terdaftar! Silakan langsung login.</span>`;
+                    alertBox.classList.add('bg-rose-950/60', 'border', 'border-rose-800/60', 'text-rose-300');
                     alertBox.classList.remove('hidden');
+                    lucide.createIcons();
                     return;
                 }
 
@@ -112,21 +255,24 @@
                 if (insertErr) throw insertErr;
 
                 // 3. Notifikasi Berhasil & Redirect
-                alertBox.textContent = 'Pendaftaran berhasil! Mengalihkan ke halaman login...';
-                alertBox.classList.add('bg-emerald-50', 'border', 'border-emerald-200', 'text-emerald-600');
+                alertBox.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 shrink-0 text-emerald-400"></i><span>Pendaftaran berhasil! Mengalihkan ke halaman login...</span>`;
+                alertBox.classList.add('bg-emerald-950/60', 'border', 'border-emerald-800/60', 'text-emerald-300');
                 alertBox.classList.remove('hidden');
+                lucide.createIcons();
 
                 setTimeout(() => {
                     window.location.href = 'login.html';
                 }, 2000);
 
             } catch (err) {
-                alertBox.textContent = 'Gagal mendaftar: ' + err.message;
-                alertBox.classList.add('bg-rose-50', 'border', 'border-rose-200', 'text-rose-600');
+                alertBox.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4 shrink-0 text-rose-400"></i><span>Gagal mendaftar: ${err.message}</span>`;
+                alertBox.classList.add('bg-rose-950/60', 'border', 'border-rose-800/60', 'text-rose-300');
                 alertBox.classList.remove('hidden');
+                lucide.createIcons();
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = `<span>Daftar Akun</span>`;
+                btn.innerHTML = `<span>Daftar Akun Sekarang</span><i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200"></i>`;
+                lucide.createIcons();
             }
         });
     </script>

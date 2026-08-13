@@ -5,37 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil Admin - SIP-PPKS</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
-        // Proteksi Akses: Jika belum login, paksa ke login.html
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
         if (!localStorage.getItem('loggedInUser')) {
             window.location.replace('login.html');
         }
     </script>
 </head>
-<body class="bg-slate-50 font-sans flex h-screen overflow-hidden transition-colors duration-300">
+<body class="bg-slate-50 dark:bg-slate-900 font-sans flex h-screen overflow-hidden transition-colors duration-300">
 
-    <aside class="w-64 bg-white text-slate-800 flex flex-col justify-between p-4 border-r border-slate-200 shrink-0 print:hidden transition-colors duration-300">
+    <aside class="w-64 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex flex-col justify-between p-4 border-r border-slate-200 dark:border-slate-700/60 shrink-0 print:hidden transition-colors duration-300">
         <div>
             <div class="flex items-center gap-3 mb-8 px-2">
-                <i data-lucide="users" class="w-7 h-7 text-teal-600"></i>
-                <span class="text-lg font-bold tracking-wide">SIP-PPKS</span>
+                <i data-lucide="users" class="w-7 h-7 text-teal-600 dark:text-teal-400"></i>
+                <span class="text-lg font-bold tracking-wide dark:text-white">SIP-PPKS</span>
             </div>
             
             <nav class="space-y-1">
-                <a href="dashboard.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium text-sm transition-all duration-200 hover:translate-x-1">
+                <a href="dashboard.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-teal-50 dark:hover:bg-slate-700/50 hover:text-teal-600 dark:hover:text-teal-400 font-medium text-sm transition-all duration-200 hover:translate-x-1">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="ppks.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium text-sm transition-all duration-200 hover:translate-x-1">
+                <a href="ppks.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-teal-50 dark:hover:bg-slate-700/50 hover:text-teal-600 dark:hover:text-teal-400 font-medium text-sm transition-all duration-200 hover:translate-x-1">
                     <i data-lucide="user-check" class="w-4 h-4"></i>
                     <span>Data PPKS</span>
                 </a>
-                <a href="jenis-ppks.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium text-sm transition-all duration-200 hover:translate-x-1">
+                <a href="jenis-ppks.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-teal-50 dark:hover:bg-slate-700/50 hover:text-teal-600 dark:hover:text-teal-400 font-medium text-sm transition-all duration-200 hover:translate-x-1">
                     <i data-lucide="tags" class="w-4 h-4"></i>
                     <span>Jenis PPKS</span>
                 </a>
-                <a href="laporan.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium text-sm transition-all duration-200 hover:translate-x-1">
+                <a href="laporan.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-teal-50 dark:hover:bg-slate-700/50 hover:text-teal-600 dark:hover:text-teal-400 font-medium text-sm transition-all duration-200 hover:translate-x-1">
                     <i data-lucide="file-text" class="w-4 h-4"></i>
                     <span>Laporan</span>
                 </a>
@@ -43,145 +53,303 @@
         </div>
 
         <div class="space-y-3">
-            <div class="border-t border-slate-200 pt-4 flex items-center justify-between px-2">
-                <a href="profile.html" class="flex items-center gap-2 text-teal-600 font-semibold text-sm transition-colors duration-200">
-                    <i data-lucide="user-circle" class="w-5 h-5"></i>
-                    <span>Profil Admin</span>
+            <button type="button" onclick="toggleTheme()" class="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-700/70 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-teal-50 dark:hover:bg-slate-700 transition-all cursor-pointer border border-transparent dark:border-slate-600">
+                <span class="flex items-center gap-2">
+                    <i data-lucide="sun" class="w-4 h-4 text-teal-500 hidden dark:block"></i>
+                    <i data-lucide="moon" class="w-4 h-4 text-teal-600 block dark:hidden"></i>
+                    <span id="themeLabel">Mode Terang</span>
+                </span>
+                <span class="text-[10px] bg-teal-100 dark:bg-teal-900/50 px-1.5 py-0.5 rounded text-teal-700 dark:text-teal-300 font-bold uppercase">Ubah</span>
+            </button>
+
+            <div class="border-t border-slate-200 dark:border-slate-700/60 pt-4 flex items-center justify-between px-2">
+                <a href="profile.html" class="flex items-center gap-2 group cursor-pointer flex-1 mr-2">
+                    <i data-lucide="user-circle" class="w-5 h-5 text-teal-600 dark:text-teal-400 group-hover:scale-105 transition-transform shrink-0"></i>
+                    <div class="flex flex-col overflow-hidden">
+                        <span id="userSidebarName" class="text-xs font-semibold text-slate-800 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors truncate">Admin Dinsos</span>
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400 truncate">Administrator</span>
+                    </div>
                 </a>
-                
-                <button type="button" id="btnLogout" class="text-slate-400 hover:text-rose-500 transition-colors duration-200 p-1.5 rounded-lg hover:bg-rose-500/10 cursor-pointer" title="Keluar / Logout">
+                <button type="button" id="btnLogout" class="text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 transition-colors duration-200 p-1.5 rounded-lg hover:bg-rose-500/10 cursor-pointer shrink-0" title="Keluar / Logout">
                     <i data-lucide="log-out" class="w-4 h-4"></i>
                 </button>
             </div>
         </div>
     </aside>
 
-    <main class="flex-1 overflow-y-auto p-8 transition-all duration-300">
-        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm mb-6 transition-all duration-300 relative overflow-hidden">
+    <main class="flex-1 overflow-y-auto p-8 transition-all duration-300 animate-fadeIn">
+        
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Profil Pengguna</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Kelola informasi akun administrator dan pantau aktivitas sistem Anda.</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm mb-6 relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-teal-500/5 dark:bg-teal-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            
             <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
-                <div class="relative group cursor-pointer shrink-0">
-                    <div class="w-24 h-24 rounded-2xl bg-teal-600 text-white flex items-center justify-center font-bold text-3xl shadow-lg shadow-teal-600/30 overflow-hidden ring-4 ring-slate-100">
+                <div class="relative shrink-0">
+                    <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 text-white flex items-center justify-center font-bold text-3xl shadow-lg shadow-teal-600/20 ring-4 ring-slate-100 dark:ring-slate-700">
                         <span id="avatarInitials">AD</span>
                     </div>
+                    <span class="absolute bottom-0 right-0 w-5 h-5 bg-emerald-500 border-2 border-white dark:border-slate-800 rounded-full" title="Aktif"></span>
                 </div>
 
                 <div class="text-center sm:text-left flex-1">
-                    <div class="mb-1">
-                        <h1 class="text-2xl font-bold text-slate-800" id="headerName">Admin Dinsos</h1>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1">
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-white" id="headerName">Admin Dinsos</h2>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 border border-teal-200/60 dark:border-teal-800/60 w-fit mx-auto sm:mx-0">
+                            <i data-lucide="shield" class="w-3.5 h-3.5"></i> Super Administrator
+                        </span>
                     </div>
-                    <p class="text-sm text-slate-500 mb-3">Dinas Sosial Kabupaten Garut • NIP. 19880312 201101 1 002</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Dinas Sosial Kabupaten Garut • NIP. 19880312 201101 1 002</p>
 
-                    <div class="flex flex-wrap justify-center sm:justify-start gap-4 text-xs text-slate-500 pt-2 border-t border-slate-100">
-                        <span class="flex items-center gap-1.5">
-                            <i data-lucide="mail" class="w-3.5 h-3.5 text-teal-600"></i> admin.dinsos@garutkab.go.id
-                        </span>
-                        <span class="flex items-center gap-1.5">
-                            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i> Akun Terverifikasi
-                        </span>
-                        <span class="flex items-center gap-1.5">
-                            <i data-lucide="clock" class="w-3.5 h-3.5 text-cyan-500"></i> Login Terakhir: Hari ini, 08:30 WIB
-                        </span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-slate-100 dark:border-slate-700/60 text-xs text-slate-500 dark:text-slate-400">
+                        <div class="flex items-center gap-2 justify-center sm:justify-start">
+                            <i data-lucide="mail" class="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0"></i> 
+                            <span class="truncate">admin.dinsos@garutkab.go.id</span>
+                        </div>
+                        <div class="flex items-center gap-2 justify-center sm:justify-start">
+                            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500 shrink-0"></i> 
+                            <span>Akun Terverifikasi</span>
+                        </div>
+                        <div class="flex items-center gap-2 justify-center sm:justify-start">
+                            <i data-lucide="clock" class="w-4 h-4 text-cyan-500 dark:text-cyan-400 shrink-0"></i> 
+                            <span>Login: Hari ini, 08:30 WIB</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
             <div class="space-y-6">
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <i data-lucide="activity" class="w-4 h-4 text-teal-600"></i> Ringkasan Sesi
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="activity" class="w-4 h-4 text-teal-600 dark:text-teal-400"></i> Ringkasan Sesi Aktif
                     </h3>
                     <div class="space-y-3">
-                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <div class="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-700/40 rounded-xl border border-slate-100 dark:border-slate-700">
                             <div class="flex items-center gap-3">
-                                <div class="p-2 bg-teal-500/10 text-teal-600 rounded-lg">
+                                <div class="p-2.5 bg-teal-500/10 text-teal-600 dark:text-teal-400 rounded-xl">
                                     <i data-lucide="laptop" class="w-4 h-4"></i>
                                 </div>
                                 <div>
-                                    <p class="text-xs font-semibold text-slate-700">Perangkat Ini</p>
+                                    <p class="text-xs font-semibold text-slate-700 dark:text-slate-200">Perangkat Ini</p>
                                     <p class="text-[11px] text-slate-400">Chrome di Windows 11</p>
                                 </div>
                             </div>
-                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="flex h-2.5 w-2.5 relative">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                            </span>
                         </div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="info" class="w-4 h-4 text-teal-600 dark:text-teal-400"></i> Informasi Sistem
+                    </h3>
+                    <div class="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+                        <div class="flex justify-between py-1.5 border-b border-slate-100 dark:border-slate-700/60">
+                            <span class="text-slate-400">Aplikasi</span>
+                            <span class="font-semibold text-slate-700 dark:text-slate-200">SIP-PPKS v1.2</span>
+                        </div>
+                        <div class="flex justify-between py-1.5 border-b border-slate-100 dark:border-slate-700/60">
+                            <span class="text-slate-400">Database</span>
+                            <span class="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Terhubung
+                            </span>
+                        </div>
+                        <div class="flex justify-between py-1.5">
+                            <span class="text-slate-400">Akses Level</span>
+                            <span class="font-semibold text-slate-700 dark:text-slate-200">Full Control</span>
+                        </div>
+                    </div>
+                    <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-700/60">
+                        <a href="dashboard.html" class="w-full bg-teal-50 hover:bg-teal-100 dark:bg-slate-700/50 dark:hover:bg-slate-700 text-teal-700 dark:text-teal-300 font-semibold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-2 transition-all">
+                            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Kembali ke Dashboard
+                        </a>
                     </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6">
-                <form id="profileForm" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-medium text-slate-600 mb-1.5">Nama Lengkap</label>
-                            <input type="text" id="adminName" required class="w-full border border-slate-300 bg-slate-50 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-teal-500 transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-slate-600 mb-1.5">Username</label>
-                            <input type="text" value="admin_ppks" disabled class="w-full border border-slate-200 bg-slate-100 text-slate-400 rounded-xl p-2.5 text-sm cursor-not-allowed">
-                        </div>
-                    </div>
+            <div class="lg:col-span-2 space-y-6">
+                
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+                    <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="user-pen" class="w-4 h-4 text-teal-600 dark:text-teal-400"></i> Informasi Personal
+                    </h3>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-medium text-slate-600 mb-1.5">Alamat Email</label>
-                            <input type="email" value="admin.dinsos@garutkab.go.id" class="w-full border border-slate-300 bg-slate-50 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-teal-500 transition-all">
+                    <form id="profileForm" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5">Nama Lengkap</label>
+                                <input type="text" id="adminName" required class="w-full border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/70 rounded-xl p-2.5 text-sm text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5">Username (Tidak dapat diubah)</label>
+                                <input type="text" id="adminUsername" disabled class="w-full border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900/60 text-slate-400 dark:text-slate-500 rounded-xl p-2.5 text-sm cursor-not-allowed">
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-medium text-slate-600 mb-1.5">Nomor WhatsApp / Telepon</label>
-                            <input type="text" value="081234567890" class="w-full border border-slate-300 bg-slate-50 rounded-xl p-2.5 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-teal-500 transition-all">
-                        </div>
-                    </div>
 
-                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
-                        <button type="submit" class="bg-teal-600 hover:bg-teal-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all active:scale-95 shadow-md shadow-teal-900/20">
-                            <i data-lucide="check" class="w-4 h-4"></i> Simpan Perubahan
-                        </button>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5">Alamat Email</label>
+                                <input type="email" id="adminEmail" class="w-full border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/70 rounded-xl p-2.5 text-sm text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5">Nomor WhatsApp / Telepon</label>
+                                <input type="text" id="adminPhone" class="w-full border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/70 rounded-xl p-2.5 text-sm text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500 transition-all">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end pt-4 border-t border-slate-100 dark:border-slate-700/60 mt-6">
+                            <button type="submit" class="bg-teal-600 hover:bg-teal-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all active:scale-95 shadow-md shadow-teal-900/20 cursor-pointer">
+                                <i data-lucide="check" class="w-4 h-4"></i> Simpan Perubahan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+                    <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="history" class="w-4 h-4 text-teal-600 dark:text-teal-400"></i> Riwayat Aktivitas & Pintasan Bantuan
+                    </h3>
+
+                    <div class="space-y-3">
+                        <div class="p-3.5 bg-slate-50 dark:bg-slate-700/40 rounded-xl border border-slate-100 dark:border-slate-700 flex items-start gap-3">
+                            <div class="p-2 bg-teal-500/10 text-teal-600 dark:text-teal-400 rounded-lg shrink-0 mt-0.5">
+                                <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                            </div>
+                            <div class="flex-1 text-xs text-slate-600 dark:text-slate-300">
+                                <p class="font-semibold text-slate-800 dark:text-white mb-0.5">Keamanan Akun Terlindungi</p>
+                                <p class="text-slate-400 dark:text-slate-400">Akun Anda dilindungi dengan sistem enkripsi pusat Dinas Sosial. Pastikan untuk selalu keluar (logout) setelah selesai bekerja dari komputer publik.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                            <div class="p-3.5 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-700/20 flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-500"></i>
+                                    <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Panduan Ekspor Data</span>
+                                </div>
+                                <span class="text-[10px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full font-semibold">Tersedia</span>
+                            </div>
+
+                            <div class="p-3.5 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-700/20 flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <i data-lucide="help-circle" class="w-4 h-4 text-cyan-500"></i>
+                                    <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Pusat Bantuan Admin</span>
+                                </div>
+                                <span class="text-[10px] bg-cyan-100 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300 px-2 py-0.5 rounded-full font-semibold">Aktif</span>
+                            </div>
+                        </div>
                     </div>
-                </form>
+                </div>
+
             </div>
         </div>
     </main>
 
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+    </style>
+
     <script>
+        function applyTheme(theme) {
+            const html = document.documentElement;
+            const label = document.getElementById('themeLabel');
+
+            if (theme === 'dark') {
+                html.classList.add('dark');
+                if (label) label.textContent = 'Mode Gelap';
+            } else {
+                html.classList.remove('dark');
+                if (label) label.textContent = 'Mode Terang';
+            }
+            localStorage.setItem('theme', theme);
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            applyTheme(isDark ? 'light' : 'dark');
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             if (window.lucide) lucide.createIcons();
+            
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            const label = document.getElementById('themeLabel');
+            if (label) label.textContent = isDarkMode ? 'Mode Gelap' : 'Mode Terang';
 
-            // Memuat nama pengguna dari localStorage
+            // Muat data dari localStorage sesi login dengan aman
             const savedUser = localStorage.getItem('loggedInUser');
             if (savedUser) {
-                document.getElementById('headerName').textContent = savedUser;
-                document.getElementById('adminName').value = savedUser;
-                
-                const initials = savedUser.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-                document.getElementById('avatarInitials').textContent = initials;
+                try {
+                    const userData = JSON.parse(savedUser);
+                    
+                    const name = userData.nama || userData.nama_lengkap || userData.username || 'Admin Dinsos';
+                    const email = userData.email || 'admin.dinsos@garutkab.go.id';
+                    const phone = userData.no_hp || userData.no_telepon || '081234567890';
+                    const username = userData.username || userData.nik || 'admin_ppks';
+                    
+                    document.getElementById('headerName').textContent = name;
+                    document.getElementById('userSidebarName').textContent = name;
+                    document.getElementById('adminName').value = name;
+                    document.getElementById('adminUsername').value = username;
+                    document.getElementById('adminEmail').value = email;
+                    document.getElementById('adminPhone').value = phone;
+                    
+                    const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                    document.getElementById('avatarInitials').textContent = initials || 'AD';
+                } catch (e) {
+                    console.error("Gagal memparsing data user sesi:", e);
+                }
             }
 
-            // Event Listener khusus untuk Tombol Logout
             const btnLogout = document.getElementById('btnLogout');
             if (btnLogout) {
                 btnLogout.addEventListener('click', function(e) {
                     e.preventDefault();
-                    
-                    const confirmLogout = window.confirm("Apakah Anda yakin ingin keluar dari aplikasi SIP-PPKS?");
-                    if (confirmLogout) {
-                        // Hapus semua data sesi
+                    if (confirm("Apakah Anda yakin ingin keluar dari aplikasi SIP-PPKS?")) {
                         localStorage.removeItem('loggedInUser');
-                        localStorage.removeItem('adminSession');
-                        
-                        // Arahkan ke login.html
                         window.location.replace('login.html');
                     }
                 });
             }
         });
 
-        // Simpan Form Profil
+        // Simpan Form Profil Personal
         document.getElementById('profileForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const newName = document.getElementById('adminName').value;
+            const newEmail = document.getElementById('adminEmail').value;
+            const newPhone = document.getElementById('adminPhone').value;
+            
             document.getElementById('headerName').textContent = newName;
-            localStorage.setItem('loggedInUser', newName);
+            document.getElementById('userSidebarName').textContent = newName;
+
+            // Perbarui data di localStorage agar tetap sinkron
+            const savedUser = localStorage.getItem('loggedInUser');
+            if (savedUser) {
+                try {
+                    let userData = JSON.parse(savedUser);
+                    userData.nama = newName;
+                    userData.email = newEmail;
+                    userData.no_hp = newPhone;
+                    localStorage.setItem('loggedInUser', JSON.stringify(userData));
+                } catch(err) {}
+            }
 
             const initials = newName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
             document.getElementById('avatarInitials').textContent = initials;

@@ -1,234 +1,253 @@
-// Variable Global
-let allPpksData = [];
-let sedangProses = false;
-let editId = null;
+// --- SCRIPT LENGKAP HALAMAN DATA PPKS (ppks.js) ---
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Inisialisasi Icon Lucide
+let rawPpksData = [];
+
+document.addEventListener('DOMContentLoaded', async function () {
+    // 1. Cek Sesi Login Admin
+    const sessionData = localStorage.getItem('loggedInUser');
+    if (!sessionData) {
+        window.location.replace('login.html');
+        return;
+    }
+
+    try {
+        const user = JSON.parse(sessionData);
+        const role = (user.role || '').toLowerCase();
+
+        if (role === 'warga') {
+            alert('Akses Ditolak! Anda tidak memiliki izin mengakses halaman ini.');
+            window.location.replace('form-lapor.html');
+            return;
+        }
+
+        const nameElem = document.getElementById('userAdminName');
+        const roleElem = document.getElementById('userAdminRole');
+        if (nameElem) nameElem.textContent = user.nama || user.username || 'Pengguna';
+        if (roleElem) roleElem.textContent = user.role || 'Admin';
+
+    } catch (err) {
+        localStorage.removeItem('loggedInUser');
+        window.location.replace('login.html');
+        return;
+    }
+
+    initTheme();
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
 
-    // 2. Proteksi & Penyesuaian UI Berdasarkan Role
-    setupRoleUI();
-
-    // 3. Load Data PPKS dari Supabase
-    loadDataPPKS();
+    await fetchPpksData();
 });
 
-// --- FUNGSI CEK ROLE & SESUAIKAN UI ---
-function getUserRole() {
-    try {
-        const sessionData = localStorage.getItem('loggedInUser');
-        if (!sessionData) return '';
-        const user = JSON.parse(sessionData);
-        return (user.role || '').toLowerCase();
-    } catch (e) {
-        return '';
-    }
-}
+// --- PENGATURAN TEMA (DARK MODE) ---
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const shouldBeDark = savedTheme === 'dark' || (!savedTheme && systemPrefersDark);
 
-function setupRoleUI() {
-    const role = getUserRole();
-    
-    // Jika Kadis / Pimpinan, sembunyikan tombol Tambah Data di halaman
-    if (role === 'kadis' || role === 'pimpinan') {
-        const btnTambah = document.getElementById('btnTambahData');
-        if (btnTambah) btnTambah.style.display = 'none';
-
-        const colAksiHeader = document.querySelector('.col-aksi');
-        if (colAksiHeader) colAksiHeader.style.display = 'none';
-    }
-}
-
-// --- A. FUNGSI BUKA & TUTUP MODAL ---
-window.openModal = function() {
-    // Kadis tidak diperbolehkan membuka modal
-    const role = getUserRole();
-    if (role === 'kadis' || role === 'pimpinan') return;
-
-    editId = null;
-    const form = document.getElementById('ppksForm');
-    if (form) form.reset();
-
-    const title = document.getElementById('modalTitle');
-    if (title) title.textContent = 'Tambah Data PPKS';
-
-    toggleModal(true);
-};
-
-window.closeModal = function() {
-    toggleModal(false);
-};
-
-function toggleModal(show) {
-    const modal = document.getElementById('modalForm');
-    if (!modal) return;
-
-    if (show) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        setTimeout(() => modal.classList.remove('opacity-0'), 10);
+    if (shouldBeDark) {
+        document.documentElement.classList.add('dark');
     } else {
-        modal.classList.add('opacity-0');
-        setTimeout(() => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
+        document.documentElement.classList.remove('dark');
+    }
+    updateThemeUI(shouldBeDark);
+}
 
-            editId = null;
-            const form = document.getElementById('ppksForm');
-            if (form) form.reset();
-            
-            const title = document.getElementById('modalTitle');
-            if (title) title.textContent = 'Tambah Data PPKS';
-        }, 300);
+function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    updateThemeUI(isDark);
+}
+
+function updateThemeUI(isDark) {
+    const label = document.getElementById('themeLabel');
+    const icon = document.getElementById('themeIcon');
+
+    if (label) {
+        label.textContent = isDark ? 'Mode Gelap' : 'Mode Terang';
+    }
+
+    if (icon) {
+        icon.setAttribute('data-lucide', isDark ? 'moon' : 'sun');
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
     }
 }
 
-// --- B. FUNGSI SIMPAN & EDIT DATA (saveData) ---
-window.saveData = async function(event) {
-    if (event) event.preventDefault();
+// --- MENGAMBIL DATA PPKS DARI SUPABASE (+ CEK SUMBER DATA: ADMIN / WARGA) ---
+async function fetchPpksData() {
+    const tableBody = document.getElementById('ppksTableBody');
+    const counterEl = document.getElementById('tableCountText');
+    const totalStatEl = document.getElementById('totalPpksStat');
+    const client = window.supabaseClient || (typeof supabaseClient !== 'undefined' ? supabaseClient : null);
 
-    // Blokir jika pengguna adalah Kadis
-    const role = getUserRole();
-    if (role === 'kadis' || role === 'pimpinan') {
-        alert('Akses ditolak! Kepala Dinas hanya dapat melihat data.');
-        return;
-    }
-
-    if (sedangProses) return;
-
-    const inputNik = document.getElementById('inputNik');
-    const inputNama = document.getElementById('inputNama');
-    const inputJenis = document.getElementById('inputJenis');
-    const inputWilayah = document.getElementById('inputWilayah');
-    const btnSubmit = event?.target ? event.target.querySelector('button[type="submit"]') : null;
-
-    const nik = inputNik ? inputNik.value.trim() : '';
-    const nama = inputNama ? inputNama.value.trim() : '';
-    const jenis_ppks = inputJenis ? inputJenis.value : '';
-    const alamat = inputWilayah ? inputWilayah.value.trim() : '';
-
-    if (!nik || !nama || !jenis_ppks || !alamat) {
-        alert('Harap isi semua kolom form!');
+    if (!client) {
+        if (tableBody) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="p-6 text-center text-rose-500 font-semibold dark:text-rose-400">
+                        Gagal terhubung ke Supabase. Periksa file supabase.js.
+                    </td>
+                </tr>`;
+        }
+        if (counterEl) counterEl.textContent = 'Koneksi gagal';
+        if (totalStatEl) totalStatEl.textContent = '0 Data';
         return;
     }
 
     try {
-        sedangProses = true;
-        if (btnSubmit) {
-            btnSubmit.disabled = true;
-            btnSubmit.innerText = 'Menyimpan...';
-            btnSubmit.classList.add('opacity-50', 'pointer-events-none');
-        }
-
-        if (editId) {
-            // UPDATE DATA
-            const { error } = await supabaseClient
-                .from('data_ppks')
-                .update({ nik, nama, jenis_ppks, alamat })
-                .eq('id', editId);
-
-            if (error) throw error;
-        } else {
-            // TAMBAH DATA BARU
-            const { error } = await supabaseClient
-                .from('data_ppks')
-                .insert([{ nik, nama, jenis_ppks, alamat }]);
-
-            if (error) throw error;
-        }
-
-        toggleModal(false);
-        await loadDataPPKS();
-
-    } catch (err) {
-        alert('Gagal menyimpan data: ' + err.message);
-    } finally {
-        sedangProses = false;
-        if (btnSubmit) {
-            btnSubmit.disabled = false;
-            btnSubmit.innerText = 'Simpan Data';
-            btnSubmit.classList.remove('opacity-50', 'pointer-events-none');
-        }
-    }
-};
-
-// --- C. FUNGSI AMBIL DATA DARI SUPABASE ---
-async function loadDataPPKS() {
-    const tableBody = document.getElementById('tableBody');
-    const totalPPKS = document.getElementById('totalPPKS');
-
-    try {
-        const { data, error } = await supabaseClient
+        const { data, error } = await client
             .from('data_ppks')
             .select('*')
             .order('created_at', { ascending: false });
 
         if (error) throw error;
 
-        allPpksData = data || [];
+        const { data: wargaList, error: wargaErr } = await client
+            .from('users_warga')
+            .select('nik');
 
-        if (totalPPKS) {
-            totalPPKS.textContent = `${allPpksData.length} Data`;
+        if (wargaErr) {
+            console.error('Gagal mengambil data users_warga:', wargaErr.message);
         }
 
-        renderTable(allPpksData);
+        const wargaNikSet = new Set(
+            (wargaList || [])
+                .map(w => (w.nik || '').toString().trim())
+                .filter(Boolean)
+        );
+
+        rawPpksData = (data || []).map(item => ({
+            ...item,
+            sumberData: wargaNikSet.has((item.nik || '').toString().trim()) ? 'warga' : 'admin'
+        }));
+
+        if (totalStatEl) {
+            totalStatEl.textContent = `${rawPpksData.length} Data`;
+        }
+
+        renderPpksTable(rawPpksData);
 
     } catch (err) {
-        console.error('Gagal memuat data PPKS:', err.message);
+        console.error('Error Supabase:', err.message);
         if (tableBody) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="5" class="text-center py-6 text-rose-500 font-medium">Gagal memuat data: ${err.message}</td>
+                    <td colspan="7" class="p-6 text-center text-rose-500 font-medium dark:text-rose-400">
+                        Error: ${err.message}
+                    </td>
                 </tr>`;
         }
+        if (counterEl) counterEl.textContent = 'Gagal memuat data';
+        if (totalStatEl) totalStatEl.textContent = '0 Data';
     }
 }
 
-// --- D. FUNGSI RENDER TABEL ---
-function renderTable(dataList) {
-    const tableBody = document.getElementById('tableBody');
+// --- RENDER TABEL PPKS (+ KOLOM SUMBER DATA) ---
+function renderPpksTable(dataList) {
+    const tableBody = document.getElementById('ppksTableBody');
+    const counterEl = document.getElementById('tableCountText');
+
     if (!tableBody) return;
 
     tableBody.innerHTML = '';
 
-    const role = getUserRole();
-    const isKadis = (role === 'kadis' || role === 'pimpinan');
+    if (counterEl) {
+        counterEl.textContent = `Menampilkan ${dataList.length} dari ${rawPpksData.length} data`;
+    }
 
     if (!dataList || dataList.length === 0) {
-        const colSpan = isKadis ? 4 : 5;
         tableBody.innerHTML = `
             <tr>
-                <td colspan="${colSpan}" class="text-center py-8 text-slate-400">Belum ada data PPKS terdaftar.</td>
+                <td colspan="7" class="p-6 text-center text-slate-400 dark:text-slate-500">
+                    Belum ada data PPKS yang terdaftar di database.
+                </td>
             </tr>`;
         return;
     }
 
     dataList.forEach((item) => {
         const row = document.createElement('tr');
-        row.className = "hover:bg-slate-50 smooth-transition animate-row";
+        row.className = "hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors duration-150";
 
-        // Jika Kadis, sembunyikan sel/kolom aksi
-        const aksiTd = isKadis ? '' : `
-            <td class="p-4 text-center">
-                <div class="flex items-center justify-center gap-2 relative z-10">
-                    <button type="button" onclick="editPPKS('${item.id}')" class="cursor-pointer text-teal-600 hover:text-teal-800 p-2 rounded-lg hover:bg-teal-100 active:scale-90 smooth-transition" title="Edit Data">
-                        <i data-lucide="pencil" class="w-4 h-4 pointer-events-none"></i>
+        let statusBadge = '';
+        let actionButtons = '';
+        const statusVal = (item.status || 'pending').toLowerCase().trim();
+
+        const sumberBadge = item.sumberData === 'warga'
+            ? `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60">
+                    <i data-lucide="megaphone" class="w-3 h-3 mr-1"></i> Lapor Warga
+               </span>`
+            : `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
+                    <i data-lucide="shield" class="w-3 h-3 mr-1"></i> Input Admin
+               </span>`;
+
+        if (statusVal === 'disetujui' || statusVal === 'acc' || statusVal === 'selesai') {
+            statusBadge = `
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
+                    Disetujui
+                </span>`;
+
+            actionButtons = `
+                <div class="flex items-center justify-center gap-1.5">
+                    <span class="text-xs text-slate-400 dark:text-slate-500 italic font-medium px-2 py-1">Selesai</span>
+                    <button onclick="deletePpks('${item.id}')" class="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-rose-500/15 transition-colors cursor-pointer ml-1" title="Hapus Data">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
-                    <button type="button" onclick="deletePPKS('${item.id}')" class="cursor-pointer text-rose-500 hover:text-rose-700 p-2 rounded-lg hover:bg-rose-100 active:scale-90 smooth-transition" title="Hapus Data">
-                        <i data-lucide="trash-2" class="w-4 h-4 pointer-events-none"></i>
+                </div>`;
+
+        }
+        else if (statusVal === 'proses') {
+            statusBadge = `
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
+                    Proses
+                </span>`;
+
+            actionButtons = `
+                <div class="flex items-center justify-center gap-1.5">
+                    <button onclick="updateStatus('${item.id}', 'Disetujui')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-md shadow-sm transition-all cursor-pointer flex items-center gap-1.5" title="Setujui / ACC">
+                        <i data-lucide="check" class="w-3.5 h-3.5"></i> ACC
                     </button>
-                </div>
-            </td>
-        `;
+                    <button onclick="deletePpks('${item.id}')" class="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-rose-500/15 transition-colors cursor-pointer ml-1" title="Hapus Data">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>`;
+
+        }
+        else {
+            statusBadge = `
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                    Pending
+                </span>`;
+
+            actionButtons = `
+                <div class="flex items-center justify-center gap-1.5">
+                    <button onclick="updateStatus('${item.id}', 'Proses')" class="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-medium rounded-md shadow-sm transition-all cursor-pointer flex items-center gap-1" title="Ubah ke Proses">
+                        <i data-lucide="clock" class="w-3.5 h-3.5"></i> Proses
+                    </button>
+                    <button onclick="updateStatus('${item.id}', 'Disetujui')" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-md shadow-sm transition-all cursor-pointer flex items-center gap-1" title="Setujui / ACC">
+                        <i data-lucide="check" class="w-3.5 h-3.5"></i> ACC
+                    </button>
+                    <button onclick="deletePpks('${item.id}')" class="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-rose-500/15 transition-colors cursor-pointer ml-1" title="Hapus Data">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>`;
+        }
 
         row.innerHTML = `
-            <td class="p-4 font-mono font-medium text-slate-700">${item.nik || '-'}</td>
-            <td class="p-4 font-medium text-slate-800">${item.nama || '-'}</td>
-            <td class="p-4 font-semibold text-teal-600">${item.jenis_ppks || '-'}</td>
-            <td class="p-4 text-slate-600">${item.alamat || '-'}</td>
-            ${aksiTd}
+            <td class="p-3.5 pl-6 font-mono text-xs text-slate-800 dark:text-slate-200">${item.nik || '-'}</td>
+            <td class="p-3.5 font-semibold text-slate-800 dark:text-slate-100">${item.nama || '-'}</td>
+            <td class="p-3.5">
+                <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
+                    ${item.jenis_ppks || '-'}
+                </span>
+            </td>
+            <td class="p-3.5 text-slate-600 dark:text-slate-300">${item.alamat || '-'}</td>
+            <td class="p-3.5 text-center">${sumberBadge}</td>
+            <td class="p-3.5 text-center">${statusBadge}</td>
+            <td class="p-3.5 pr-6 text-center">${actionButtons}</td>
         `;
         tableBody.appendChild(row);
     });
@@ -238,68 +257,92 @@ function renderTable(dataList) {
     }
 }
 
-// --- E. FUNGSI EDIT DATA ---
-window.editPPKS = function(id) {
-    const role = getUserRole();
-    if (role === 'kadis' || role === 'pimpinan') {
-        alert('Akses ditolak! Kadis/Pimpinan tidak memiliki izin mengedit data.');
-        return;
-    }
-
-    const item = allPpksData.find(d => String(d.id) === String(id));
-    if (!item) return;
-
-    editId = item.id;
-
-    if (document.getElementById('inputNik')) document.getElementById('inputNik').value = item.nik || '';
-    if (document.getElementById('inputNama')) document.getElementById('inputNama').value = item.nama || '';
-    if (document.getElementById('inputJenis')) document.getElementById('inputJenis').value = item.jenis_ppks || '';
-    if (document.getElementById('inputWilayah')) document.getElementById('inputWilayah').value = item.alamat || '';
-
-    if (document.getElementById('modalTitle')) document.getElementById('modalTitle').textContent = 'Edit Data PPKS';
-
-    toggleModal(true);
-};
-
-// --- F. FUNGSI HAPUS DATA ---
-window.deletePPKS = async function(id) {
-    const role = getUserRole();
-    if (role === 'kadis' || role === 'pimpinan') {
-        alert('Akses ditolak! Kadis/Pimpinan tidak memiliki izin menghapus data.');
-        return;
-    }
-
-    if (!confirm('Apakah Anda yakin ingin menghapus data PPKS ini?')) return;
-
+// --- UPDATE STATUS KE SUPABASE ---
+async function updateStatus(id, newStatus) {
+    const client = window.supabaseClient;
     try {
-        const { error } = await supabaseClient
+        const targetId = isNaN(id) ? id : Number(id);
+        const { error } = await client
             .from('data_ppks')
-            .delete()
-            .eq('id', id);
+            .update({ status: newStatus })
+            .eq('id', targetId);
 
         if (error) throw error;
 
-        await loadDataPPKS();
+        await fetchPpksData();
     } catch (err) {
-        alert('Gagal menghapus data: ' + err.message);
+        alert('Gagal memperbarui status: ' + err.message);
     }
-};
+}
 
-// --- G. FUNGSI PENCARIAN (SEARCH) ---
-window.filterData = function() {
-    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+// --- PENCARIAN / FILTER TABEL PPKS ---
+function filterPpksTable() {
+    const keyword = document.getElementById('searchPpksInput').value.toLowerCase();
 
-    const filtered = allPpksData.filter(item => {
+    const filtered = rawPpksData.filter(item => {
         const nik = (item.nik || '').toLowerCase();
         const nama = (item.nama || '').toLowerCase();
         const jenis = (item.jenis_ppks || '').toLowerCase();
         const alamat = (item.alamat || '').toLowerCase();
+        const status = (item.status || 'pending').toLowerCase();
+        const sumber = item.sumberData === 'warga' ? 'lapor warga' : 'input admin';
 
-        return nik.includes(searchInput) || 
-               nama.includes(searchInput) || 
-               jenis.includes(searchInput) || 
-               alamat.includes(searchInput);
+        return nik.includes(keyword) || nama.includes(keyword) || jenis.includes(keyword) || alamat.includes(keyword) || status.includes(keyword) || sumber.includes(keyword);
     });
 
-    renderTable(filtered);
-};
+    renderPpksTable(filtered);
+}
+
+// --- HAPUS DATA PPKS (+ IKUT HAPUS AKUN WARGA JIKA DATA BERASAL DARI LAPORAN WARGA) ---
+async function deletePpks(id) {
+    const client = window.supabaseClient || (typeof supabaseClient !== 'undefined' ? supabaseClient : null);
+    if (!client) {
+        alert('Koneksi Supabase belum siap.');
+        return;
+    }
+
+    const targetId = isNaN(id) ? id : Number(id);
+    const itemToDelete = rawPpksData.find(d => String(d.id) === String(id));
+    const isWargaSource = itemToDelete?.sumberData === 'warga';
+
+    const confirmMsg = isWargaSource
+        ? 'Data ini berasal dari LAPORAN WARGA.\n\nMenghapusnya juga akan menghapus akun warga terkait di sistem. Lanjutkan?'
+        : 'Data ini diinput LANGSUNG OLEH ADMIN (tidak ada akun warga terkait).\n\nHapus data ini secara permanen?';
+
+    if (!confirm(confirmMsg)) return;
+
+    try {
+        const { error: deleteDataErr } = await client
+            .from('data_ppks')
+            .delete()
+            .eq('id', targetId);
+
+        if (deleteDataErr) throw deleteDataErr;
+
+        let info = '';
+        if (isWargaSource && itemToDelete?.nik) {
+            const { error: deleteUserErr, count } = await client
+                .from('users_warga')
+                .delete({ count: 'exact' })
+                .eq('nik', itemToDelete.nik);
+
+            if (deleteUserErr) {
+                console.error('Gagal menghapus users_warga:', deleteUserErr.message);
+                info = '\n\n⚠️ Peringatan: akun warga terkait GAGAL dihapus otomatis. Silakan cek manual di Supabase.';
+            } else if (count && count > 0) {
+                info = '\n\nAkun warga pelapor juga sudah ikut dihapus.';
+            }
+        }
+
+        alert('Data PPKS berhasil dihapus dari web dan database Supabase!' + info);
+        await fetchPpksData();
+    } catch (err) {
+        alert('Gagal menghapus data dari Supabase: ' + err.message);
+    }
+}
+
+// --- LOGOUT ---
+function handleLogout() {
+    localStorage.removeItem('loggedInUser');
+    window.location.replace('login.html');
+}
